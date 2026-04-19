@@ -13,7 +13,7 @@ This build integrates the following hardware:
 | Gimbal | Allxianfei C20T (3-axis FPV) | https://www.allxianfei.com/en/c20t-3axis-fpv-gimbal.html |
 | VTX / Air Unit | DJI O4 Pro | — |
 | Lidar / Optical Flow | MicoAir MTF-01P | https://micoair.com/optical_range_sensor_mtf-01p/ |
-| Antennas | Dual SMA stock | — |
+| Antennas | Stock DJI O4 Pro antennas (built-in sockets on VTX cover) | — |
 | GPS | GEPRC GEP-M1025 | https://geprc.com/product/gep-m1025-series-gps-module/ |
 | LTE Cellular Relay | SkyRelay Conduit | https://www.skyrelay.us/products.html |
 | Remote ID | Bluemark DB152 | https://gearfocus.com/products/bluemark-db152-fpv-dronebeacon-faa-remote-id-pcb-the-origina-viB7I |
