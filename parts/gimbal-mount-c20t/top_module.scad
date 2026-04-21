@@ -8,7 +8,7 @@
  *   Right: X = +32
  */
 
-include <../openscad_libraries/eazl.scad>
+include <../../libs/eazl.scad>
 
 // =============================================================================
 // >>> PARAMETERS — adjust these to fit your build <<<
@@ -107,7 +107,7 @@ O4_SHELF_Y = BACK_STEP_Y - BACK_COVER_H/2;    // Y center — centered in back c
 O4_SHELF_Z = STANDOFF_BASE_HEIGHT + 4.5;      // Z center
 
 // --- DJI O4 Pro antenna holder (imported STL, sits on the shelf in the back chamber) ---
-DJI_HOLDER_STL = "dji_o4_pro_antenna_holder.stl";
+DJI_HOLDER_STL = "../../refs/dji_o4_pro_antenna_holder.stl";
 DJI_HOLDER_X   = 0;                                     // X offset from shelf center
 DJI_HOLDER_Y   = 0;                                     // Y offset from shelf center
 DJI_HOLDER_Z   = 51;                                     // Z offset above shelf top face
@@ -116,18 +116,18 @@ DJI_HOLDER_ROT = [0, 0, 0];                             // [pitch, roll, yaw]
 // --- Stock DJI antenna holder (replaces their imported STL — mirror for other side) ---
 DJI_ANT_BODY_D   = 3.5;   // antenna body diameter (mm)
 DJI_ANT_HOLD_L   = 30;    // length of antenna body held
-DJI_ANT_WALL     = 2;     // socket wall thickness
+DJI_ANT_WALL     = 3;     // socket wall thickness
 DJI_ANT_BASE_W   = 20;    // mounting base width  (along local X)
 DJI_ANT_BASE_L   = 20;    // mounting base length (along local Y)
 DJI_ANT_BASE_H   = 3;     // mounting base thickness
 
 // placement (one side — other will be mirrored)
-DJI_ANT_X        = 10;    // X position
-DJI_ANT_Y        = -21;     // Y position
-DJI_ANT_Z        = 73;     // Z position
+DJI_ANT_X        = 20;    // X position
+DJI_ANT_Y        = -20;     // Y position
+DJI_ANT_Z        = 70;     // Z position
 DJI_ANT_TILT     = 0;     // pitch (rotation around X) — outward lean
 DJI_ANT_YAW      = 0;     // yaw   (rotation around Z) — rotate around vertical
-DJI_ANT_ROLL     = 30;     // roll  (rotation around Y) — rotate socket-axis
+DJI_ANT_ROLL     = 15;     // roll  (rotation around Y) — rotate socket-axis
 
 // --- Back cover side vents (turbo-style angled slots for air intake) ---
 VENT_COUNT     = 5;     // number of slots per side
@@ -381,6 +381,26 @@ module back_cover() {
         translate([3.5, 28, 80])
             cube([11, 4, 30], center = true);
 
+        // Rounded slot — world position (0, -43, 90). Back cover is translated
+        // by (0, seperate_y, seperate_z), so local Y/Z = world - separation.
+        translate([0, -43 - seperate_y, 90 - seperate_z])
+            minkowski() {
+                cube([15 - 2*3, 10 - 2*3, 30 - 2*3], center = true);
+                sphere(r = 3, $fn = 32);
+            }
+
+        // Antenna snap-in slits — extend each socket's slit radially through
+        // the cover wall so the antenna can slide in past the cover material.
+        for (m = [0, 1])
+            mirror([m, 0, 0])
+                translate([DJI_ANT_X, DJI_ANT_Y + DJI_ANT_LOCAL_Y, DJI_ANT_Z])
+                    rotate([DJI_ANT_TILT, DJI_ANT_ROLL, DJI_ANT_YAW])
+                        rotate([0, 0, DJI_ANT_SLIT_YAW])
+                            translate([0, -DJI_ANT_SLIT_W/2, -0.1])
+                                cube([DJI_ANT_BODY_D/2 + DJI_ANT_WALL + BACK_COVER_WALL + 5,
+                                      DJI_ANT_SLIT_W,
+                                      DJI_ANT_HOLD_L + 0.2]);
+
     }
 
     // DJI O4 Pro antenna holder — imported STL, sits on the shelf inside the
@@ -407,6 +427,24 @@ module back_cover() {
             // Cable cut for the O4 air unit — also cuts through the STL body
             translate([3.5, 28, 80])
                 cube([11, 4, 30], center = true);
+
+            // Rounded slot — same cut as the cover (world 0,-43,90 → cover-local)
+            translate([0, -43 - seperate_y, 90 - seperate_z])
+                minkowski() {
+                    cube([15 - 2*3, 10 - 2*3, 30 - 2*3], center = true);
+                    sphere(r = 3, $fn = 32);
+                }
+
+            // Antenna snap-in slits — same cut as the cover
+            for (m = [0, 1])
+                mirror([m, 0, 0])
+                    translate([DJI_ANT_X, DJI_ANT_Y + DJI_ANT_LOCAL_Y, DJI_ANT_Z])
+                        rotate([DJI_ANT_TILT, DJI_ANT_ROLL, DJI_ANT_YAW])
+                            rotate([0, 0, DJI_ANT_SLIT_YAW])
+                                translate([0, -DJI_ANT_SLIT_W/2, -0.1])
+                                    cube([DJI_ANT_BODY_D/2 + DJI_ANT_WALL + BACK_COVER_WALL + 5,
+                                          DJI_ANT_SLIT_W,
+                                          DJI_ANT_HOLD_L + 0.2]);
         }
 
 
@@ -415,7 +453,8 @@ module back_cover() {
 // Stock DJI antenna holder — cylindrical socket on a flat mounting base.
 // Position and rotate externally, then mirror on the opposite side.
 // Local frame: socket axis along +Z, base centred on XY plane at Z=0.
-DJI_ANT_SLIT_W = 1.3;     // slit width — lets the antenna snap/slide in
+DJI_ANT_SLIT_W   = 1.3;   // slit width — lets the antenna snap/slide in
+DJI_ANT_SLIT_YAW = -90;     // slit direction around socket Z axis, in degrees (0 = +X, 90 = +Y, 180 = -X, 270 = -Y)
 
 // Builds the socket + through-hole as an unrotated assembly.
 module _dji_ant_body() {
@@ -423,6 +462,14 @@ module _dji_ant_body() {
         cylinder(h = DJI_ANT_HOLD_L, d = DJI_ANT_BODY_D + 2*DJI_ANT_WALL);
         translate([0, 0, -0.1])
             cylinder(h = DJI_ANT_HOLD_L + 0.2, d = DJI_ANT_BODY_D);
+
+        // Side slit — full-length opening so the antenna can snap/slide in.
+        // DJI_ANT_SLIT_YAW rotates the slit direction around the socket Z axis.
+        rotate([0, 0, DJI_ANT_SLIT_YAW])
+            translate([0, -DJI_ANT_SLIT_W/2, -0.1])
+                cube([DJI_ANT_BODY_D/2 + DJI_ANT_WALL + 1,
+                      DJI_ANT_SLIT_W,
+                      DJI_ANT_HOLD_L + 0.2]);
     }
 }
 
@@ -602,7 +649,7 @@ color("SteelBlue", 0.7)
                                              d = CABLE_HOLE_D + 0.4, $fn = 30);
     }
 
-CABLE_HOLE_D       = 2.5;  // antenna cable diameter
+CABLE_HOLE_D       = DJI_ANT_BODY_D;  // match socket bore so the IPEX/u.FL connector passes straight through without a ledge at the cover
 CABLE_PIERCE_DOWN  = 5;    // mm the cable hole extends below the antenna origin
                            // (into the cover — set just enough to clear the top wall)
 CABLE_PIERCE_UP    = 15;   // mm the hole extends above the antenna origin
@@ -634,5 +681,3 @@ module antenna_assembly() {
         translate([DJI_ANT_X, DJI_ANT_LOCAL_Y, 0])
             dji_antenna_holder();
 }
-
-
