@@ -72,9 +72,9 @@ HOLE_FROM_END  = 16;   // distance from the -Y end of the bar to the hole centre
 // Shift so the standoff hole ends up at the standoff position, not bar centre
 BAR_Y_SHIFT = BAR_LENGTH/2 - HOLE_FROM_END;
     // --- Case hull (simplified outline of the SkyRelay v4 enclosure) ---
-    CASE_X = 122;   // outer length (box_inner_x=114 + 2*wall_thickness)
-    CASE_Y = 40;    // outer width (board_width=33 + 2*pcb_tolerance + 2*wall_thickness)
-    CASE_Z = 31.2;  // outer height (box_interior_height=28 + wall_bot + wall_top)
+    CASE_X = 122.5;   // outer length (box_inner_x=114 + 2*wall_thickness)
+    CASE_Y = 32.5;  // outer width (was height; SkyRelay flipped on its side)
+    CASE_Z = 40;    // outer height (was width; SkyRelay flipped on its side)
     CASE_R = 3;     // corner radius
     CASE_POS_Y = 35; // Y offset of case (relative to standoff line)
     CASE_POS_Z = 0;  // sits on top of the bars
@@ -107,4 +107,5 @@ difference(){
 
 
 translate([0, CASE_POS_Y, CASE_POS_Z])
-holder(CASE_X, CASE_Y, CASE_Z, open_pct=50, thickness=2, spacing=0.1, lips=true);
+rotate([0, 0, 180])
+holder(CASE_X, CASE_Y, CASE_Z, open_pct=50, thickness=2, spacing=0.1);
